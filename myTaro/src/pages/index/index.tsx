@@ -1,6 +1,6 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Image } from '@tarojs/components'
+import { View, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 // #region 书写注意
@@ -34,13 +34,16 @@ type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 interface Index {
   props: IProps;
 }
-
+export interface indesState{
+  data: any,
+  isToggleOn: boolean
+}
 @connect(({ counter }) => ({
   counter
 }), (dispatch) => ({
 
 }))
-class Index extends Component {
+class Index extends Component<any,indesState> {
 
     /**
    * 指定config的类型声明为: Taro.Config
@@ -52,25 +55,51 @@ class Index extends Component {
     config: Config = {
     navigationBarTitleText: '首页'
   }
-
+  timerID: any;
+  constructor(props: any){
+    super(props)
+  }
+  state: Readonly<indesState> = {
+    data: new Date(),
+    isToggleOn: false
+  }
+  componentDidMount(){
+    this.timerID = setInterval(()=>this.tick(),1000)
+  }
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
   }
 
-  componentWillUnmount () { }
+  componentWillUnmount () {
+    clearInterval(this.timerID)
+   }
 
   componentDidShow () { }
 
   componentDidHide () { }
-
+  tick(){
+    this.setState({data: new Date()})
+  }
   render () {
     return (
       <View className='index'>
         <View>
-          <Image src="../images/card.jpg" mode='aspectFit'/>
+          <Text> Hello, Tarojs!</Text>
+          <Text>
+            现在时间是{this.state.data.toLocaleTimeString()}
+          </Text>
+          <Button onClick={this.onClick}>
+            {this.state.isToggleOn ? 'ON':'OFF'}
+          </Button>
         </View>
       </View>
     )
+  }
+  onClick = (e: any) => {
+    e.stopPropagation()
+    this.setState(prevState => ({
+      isToggleOn: !prevState.isToggleOn
+    }))
   }
 }
 
