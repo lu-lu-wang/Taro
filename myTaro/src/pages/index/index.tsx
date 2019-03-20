@@ -65,6 +65,25 @@ class Index extends Component<any,indesState> {
   }
   componentDidMount(){
     this.timerID = setInterval(()=>this.tick(),1000)
+    const updateManager = Taro.getUpdateManager()
+    const { onCheckForUpdate, onUpdateReady, applyUpdate, onUpdateFailed } = updateManager
+    onCheckForUpdate((res)=>{console.log('res',res.hasUpdate)})
+    console.log('updateManager',onCheckForUpdate)
+    onUpdateReady(()=>{
+      Taro.showModal({
+        title: '更新提示',
+        content: '新版本已经准备好，是否重启小程序？',
+        showCancel: false,
+        confirmText: '好的',
+        success: (res) =>{
+          if(res.confirm){
+            // 新的版本已经下载好，调用applyUpdate应用新版本并重启
+            applyUpdate()
+          }
+        }
+      })
+    })
+    onUpdateFailed((res)=>{console.log('更新失败！', res)})
   }
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
